@@ -1,16 +1,20 @@
 import React, { Component } from "react";
 import axios from 'axios';
+import MovieTile from './MovieTile';
 
 export default class MainPage extends Component {
     constructor(props){
         super(props);
         this.state = {
             resultObject: null,
-            errorObject:null
+            errorObject:null,
+            allGenre:[],
+            allYear:[],
+            displayedMovies:null,
         }
     }
     componentDidMount(){
-        document.title = "The latest movie list"
+        document.title = "Movies"
         //call the api endpoint for data
         let promise = this.callMovie()
         promise.then(ress=>{
@@ -44,6 +48,13 @@ export default class MainPage extends Component {
         if(this.state.resultObject){
             resultDisplay = <>
                 <h1>All movies</h1>
+                {this.state.resultObject !== null &&
+                    this.state.resultObject.map(d =>{
+                        return(
+                        <MovieTile movie={d} />
+                        );
+                    })
+                }
             </>
         }
         if(this.state.error){
