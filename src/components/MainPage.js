@@ -11,6 +11,7 @@ export default class MainPage extends Component {
             allGenre:[],
             allYear:[],
             displayedMovies:null,
+            error:false
         }
     }
     componentDidMount(){
@@ -27,7 +28,24 @@ export default class MainPage extends Component {
     handlePopulate(resObj){
         if(resObj){
             this.setState({resultObject:resObj});
+            //get genres and years
+            let genres = [];
+            let years = [];
+            for(let movie in resObj){
+                genres.push(resObj[movie].genre);
+                years.push(resObj[movie].productionYear);
+            }
+            //remove duplicates
+            let genreSet = new Set(genres);
+            let yearSet = new Set(years);
+            //sort options
+            genres =[...genreSet].sort();
+            years = [...yearSet].sort();
+
+            this.setState({allGenre:genres});
+            this.setState({allYear: years});
         }
+
     }
     //retrieves movies from endpoint.
     async callMovie(){
@@ -40,7 +58,7 @@ export default class MainPage extends Component {
             const response = await axios(options);
             return response.data;
         }catch (error){
-            console.log(error);
+            this.setState({errorObj:error});
         }
     }
     render(){
@@ -51,13 +69,13 @@ export default class MainPage extends Component {
                 {this.state.resultObject !== null &&
                     this.state.resultObject.map(d =>{
                         return(
-                        <MovieTile movie={d} />
+                        <MovieTile movie={d} key={`movietile-${d.name}`}/>
                         );
                     })
                 }
             </>
         }
-        if(this.state.error){
+        if(this.state.errorObj){
             resultDisplay = "Error Encountered. See log for details.";
         }
 
