@@ -5,10 +5,10 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import Input from '@material-ui/core/Input';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 
 
 export default class MainPage extends Component {
@@ -19,11 +19,13 @@ export default class MainPage extends Component {
             errorObject:null,
             allGenre:[],
             allYear:[],
-            displayedMovies:null,
             error:false,
             genre:"",
-            year:""
+            productionYear:""
         }
+        this.handleChange = this.handleChange.bind(this);
+        this.filterArray = this.filterArray.bind(this);
+        this.clearFilters = this.clearFilters.bind(this);
     }
     componentDidMount(){
         document.title = "Movies"
@@ -58,6 +60,37 @@ export default class MainPage extends Component {
         }
 
     }
+    clearFilters(){
+        this.setState({genre:""});
+        this.setState({productionYear:""});
+    }
+    filterArray(array, filters) {
+        let cleanedFilters = {};
+        let curState = this.state;
+        //remove empty filters
+        for(let filter in filters){
+            if(curState[filter]!==""){
+                cleanedFilters[filter] = filters[filter];
+            }
+        }
+        filters = cleanedFilters;
+        
+        //otherwise...       
+            const filterKeys = Object.keys(filters);
+        return array.filter(item => {
+          // validates all filter criteria
+          return filterKeys.every(key => {
+            // ignores non-function predicates
+            if (typeof filters[key] !== 'function') return true;
+            return filters[key](item[key]);
+          });
+        });
+    }
+    handleChange(event){
+        let change = {};
+        change[event.target.name] = event.target.value;
+        this.setState(change);
+    }
     //retrieves movies from endpoint.
     async callMovie(){
         const url = process.env.REACT_APP_API_URL;
@@ -74,19 +107,21 @@ export default class MainPage extends Component {
     }
     render(){
         let resultDisplay = <h1>Loading...</h1>;
+        let filters = {
+            productionYear: prodYear => prodYear === this.state.productionYear,
+            genre: genre => genre === this.state.genre
+        }
+        
         if(this.state.resultObject){
-            resultDisplay = <>
+            resultDisplay = <>    
+                
+                <Paper style={{ padding: '2em', width: '80%', margin:"2em auto" }}>
                 <h1>All movies</h1>
-
-                {/*
-                <React.Fragment>
-                <Paper style={{ padding: '2em', width: '100%' }}>
-                    <ContainerHeader>Sort movies</ContainerHeader>
-                    <Grid container spacing={1}>
-                        <Grid item xs={6}>
+                    <Grid container spacing={1} direction="row" justify="center"  alignItems="center">
+                        <Grid item xs={3} md={1}>
                             <FormControl className="formControl" margin="dense">
                                 <InputLabel shrink htmlFor="genre-label-submission">
-                                    genre
+                                    Genre
                             </InputLabel>
                                 <Select
                                     input={
@@ -94,79 +129,78 @@ export default class MainPage extends Component {
                                     }
                                     displayEmpty
                                     name="genre"
-                                    disabled={this.state.genre === ""}
-                                    onClick={this.state.genre === "" && (() => this.openMessageBox("Please select your course!"))}
                                     value={this.state.genre}
                                     onChange={this.handleChange}
                                     data-cy="genre"
                                 >
                                     <MenuItem value="">
-                                        <em>Select genre</em>
+                                        <em>All Genres</em>
                                     </MenuItem>
-                                    {allGenre !== null &&
-                                        allGenre.map(d => {
+                                    {this.state.allGenre !== null &&
+                                        this.state.allGenre.map(d => {
                                             return (
-                                                <MenuItem key={`AssnPastSub-${d}`} value={d} data-cy="practice">
+                                                <MenuItem key={`Genres-${d}`} value={d} data-cy="genreselection">
                                                     {d}
                                                 </MenuItem>
                                             );
                                         })}
                                     }
                                         </Select>
-                                <FormHelperText>Select Year</FormHelperText>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={3} md={1}>
                             <FormControl className="formControl" margin="dense">
-                                <InputLabel shrink htmlFor="year-label-submission">
+                                <InputLabel shrink htmlFor="year-label-movie">
                                     year
                             </InputLabel>
                                 <Select
                                     input={
-                                        <Input name="year" id="year-label-submission" />
+                                        <Input name="year" id="year-label-movie" />
                                     }
                                     displayEmpty
-                                    name="year"
-                                    disabled={this.state.course === ""}
-                                    onClick={this.state.course === "" && (() => this.openMessageBox("Please select your course!"))}
-                                    value={year}
+                                    name="productionYear"
+                                    value={this.state.productionYear}
                                     onChange={this.handleChange}
-                                    data-cy="year"
+                                    data-cy="productionYear"
                                 >
                                     <MenuItem value="">
-                                        <em>Select year</em>
+                                        <em>All years</em>
                                     </MenuItem>
-                                    {allYear !== null &&
-                                        allYear.map(d => {
+                                    {this.state.allYear !== null &&
+                                        this.state.allYear.map(d => {
                                             return (
-                                                <MenuItem key={`AssnPastSub-${d}`} value={d} data-cy="practice">
+                                                <MenuItem key={`YearMovie-${d}`} value={d} data-cy="yearmovies">
                                                     {d}
                                                 </MenuItem>
                                             );
                                         })}
                                     }
                                         </Select>
-                                <FormHelperText>Select Year</FormHelperText>
+                                
                             </FormControl>
                         </Grid>
+                        <Grid item xs={3} md={1}>
+                        <Button variant="outlined" onClick={this.clearFilters}>Clear Filters</Button>
+                        </Grid>
+                      
                     </Grid>
                 </Paper>
-                {anyResult ? <Analysis result={anyResult} reqID={this.state.requestID} /> : status}
-                <MessageBox open={this.state.messsageBox} handleClose={this.closeMessageBox} title="Caution" message={this.state.messsage}></MessageBox>
-            </React.Fragment>
-            */}
-                
+            <Grid container justify="center"  alignItems="center" direction="row" width="100%" height="110%">
                 {this.state.resultObject !== null &&
-                    this.state.resultObject.map(d =>{
+                    this.filterArray(this.state.resultObject,filters).map(d =>{
                         return(
                         <MovieTile movie={d} key={`movietile-${d.name}`}/>
                         );
                     })
                 }
+            </Grid> 
+            {
+                this.filterArray(this.state.resultObject,filters).length===0 && <h2>No movies match your criteria</h2>
+            }
             </>
         }
         if(this.state.errorObj){
-            resultDisplay = "Error Encountered. See log for details.";
+            resultDisplay = <h1>{this.state.errorObj.response.status + " " + this.state.errorObj.response.data.message}</h1>;
         }
 
         return resultDisplay;
