@@ -1,6 +1,15 @@
 import React, { Component } from "react";
 import axios from 'axios';
 import MovieTile from './MovieTile';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Input from '@material-ui/core/Input';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+
 
 export default class MainPage extends Component {
     constructor(props){
@@ -11,7 +20,9 @@ export default class MainPage extends Component {
             allGenre:[],
             allYear:[],
             displayedMovies:null,
-            error:false
+            error:false,
+            genre:"",
+            year:""
         }
     }
     componentDidMount(){
@@ -66,6 +77,85 @@ export default class MainPage extends Component {
         if(this.state.resultObject){
             resultDisplay = <>
                 <h1>All movies</h1>
+
+                {/*
+                <React.Fragment>
+                <Paper style={{ padding: '2em', width: '100%' }}>
+                    <ContainerHeader>Sort movies</ContainerHeader>
+                    <Grid container spacing={1}>
+                        <Grid item xs={6}>
+                            <FormControl className="formControl" margin="dense">
+                                <InputLabel shrink htmlFor="genre-label-submission">
+                                    genre
+                            </InputLabel>
+                                <Select
+                                    input={
+                                        <Input name="genre" id="genre-label-submission" />
+                                    }
+                                    displayEmpty
+                                    name="genre"
+                                    disabled={this.state.genre === ""}
+                                    onClick={this.state.genre === "" && (() => this.openMessageBox("Please select your course!"))}
+                                    value={this.state.genre}
+                                    onChange={this.handleChange}
+                                    data-cy="genre"
+                                >
+                                    <MenuItem value="">
+                                        <em>Select genre</em>
+                                    </MenuItem>
+                                    {allGenre !== null &&
+                                        allGenre.map(d => {
+                                            return (
+                                                <MenuItem key={`AssnPastSub-${d}`} value={d} data-cy="practice">
+                                                    {d}
+                                                </MenuItem>
+                                            );
+                                        })}
+                                    }
+                                        </Select>
+                                <FormHelperText>Select Year</FormHelperText>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <FormControl className="formControl" margin="dense">
+                                <InputLabel shrink htmlFor="year-label-submission">
+                                    year
+                            </InputLabel>
+                                <Select
+                                    input={
+                                        <Input name="year" id="year-label-submission" />
+                                    }
+                                    displayEmpty
+                                    name="year"
+                                    disabled={this.state.course === ""}
+                                    onClick={this.state.course === "" && (() => this.openMessageBox("Please select your course!"))}
+                                    value={year}
+                                    onChange={this.handleChange}
+                                    data-cy="year"
+                                >
+                                    <MenuItem value="">
+                                        <em>Select year</em>
+                                    </MenuItem>
+                                    {allYear !== null &&
+                                        allYear.map(d => {
+                                            return (
+                                                <MenuItem key={`AssnPastSub-${d}`} value={d} data-cy="practice">
+                                                    {d}
+                                                </MenuItem>
+                                            );
+                                        })}
+                                    }
+                                        </Select>
+                                <FormHelperText>Select Year</FormHelperText>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                </Paper>
+                {anyResult ? <Analysis result={anyResult} reqID={this.state.requestID} /> : status}
+                <MessageBox open={this.state.messsageBox} handleClose={this.closeMessageBox} title="Caution" message={this.state.messsage}></MessageBox>
+            </React.Fragment>
+            */}
+                
                 {this.state.resultObject !== null &&
                     this.state.resultObject.map(d =>{
                         return(
