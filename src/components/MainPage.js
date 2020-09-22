@@ -9,6 +9,8 @@ import Input from '@material-ui/core/Input';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import Movie from './Movie';
+import { BrowserRouter, Route } from 'react-router-dom';
 
 
 export default class MainPage extends Component {
@@ -65,6 +67,10 @@ export default class MainPage extends Component {
         this.setState({productionYear:""});
     }
     filterArray(array, filters) {
+
+        if(array===null){
+            return[];
+        }
         let cleanedFilters = {};
         let curState = this.state;
         //remove empty filters
@@ -111,14 +117,11 @@ export default class MainPage extends Component {
             productionYear: prodYear => prodYear === this.state.productionYear,
             genre: genre => genre === this.state.genre
         }
-        
-        if(this.state.resultObject){
-            resultDisplay = <>    
-                
-                <Paper style={{ padding: '2em', width: '80%', margin:"2em auto" }}>
+        let mainContent = <>
+                        <Paper style={{ padding: '2em', width: '80%', margin:"2em auto" }}>
                 <h1>All movies</h1>
                     <Grid container spacing={1} direction="row" justify="center"  alignItems="center">
-                        <Grid item xs={3} md={1}>
+                        <Grid item xs={3} md={3} lg={1}>
                             <FormControl className="formControl" margin="dense">
                                 <InputLabel shrink htmlFor="genre-label-submission">
                                     Genre
@@ -148,7 +151,7 @@ export default class MainPage extends Component {
                                         </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={3} md={1}>
+                        <Grid item xs={3} md={3} lg={1}>
                             <FormControl className="formControl" margin="dense">
                                 <InputLabel shrink htmlFor="year-label-movie">
                                     year
@@ -179,30 +182,53 @@ export default class MainPage extends Component {
                                 
                             </FormControl>
                         </Grid>
-                        <Grid item xs={3} md={1}>
+                        <Grid item xs={3} md={3} lg={1}>
                         <Button variant="outlined" onClick={this.clearFilters}>Clear Filters</Button>
                         </Grid>
-                      
                     </Grid>
                 </Paper>
             <Grid container justify="center"  alignItems="center" direction="row" width="100%" height="110%">
                 {this.state.resultObject !== null &&
                     this.filterArray(this.state.resultObject,filters).map(d =>{
                         return(
-                        <MovieTile movie={d} key={`movietile-${d.name}`}/>
+                            <> 
+                                <MovieTile movie={d} key={`movietile-${d.name}`}/>      
+                            </>
                         );
+                    })
+                }
+                {this.state.resultObject !== null &&
+                    this.state.resultObject.map(r=>{
+                        return(
+                            <Route path={`/${r.name}_${r.productionYear}`} render={()=>{return( <Movie></Movie> );}}/>
+                        )
                     })
                 }
             </Grid> 
             {
                 this.filterArray(this.state.resultObject,filters).length===0 && <h2>No movies match your criteria</h2>
             }
-            </>
+        </>;
+        
+        if(this.state.resultObject){
+
+            resultDisplay = <BrowserRouter>
+                <Route exact path="/" >{mainContent}</Route>
+                {this.state.resultObject !== null &&
+                    this.state.resultObject.map(r=>{
+                        return(
+                            <Route path={`/${r.name}_${r.productionYear}`} render={()=> <Movie details={r}></Movie> }/>
+                        )
+                    })
+                }
+            </BrowserRouter>;
         }
+
+
+        //When there's a server error
         if(this.state.errorObj){
             resultDisplay = <h1>{this.state.errorObj.response.status + " " + this.state.errorObj.response.data.message}</h1>;
         }
-
         return resultDisplay;
     }
 }
